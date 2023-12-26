@@ -432,6 +432,16 @@ class Boss(pg.sprite.Sprite):
         """
         self.hp -= 1
 
+class Drop(pg.sprite.Sprite):
+    def __init__(self,enemy: Enemy):
+        super().__init__()
+        self.image = pg.Surface((15, 15))
+        pg.draw.rect(self.image, (0,0,255),(0, 0, 15, 15))
+        self.rect= self.image.get_rect(center=enemy.rect.center)
+    
+    def update(self):
+        self.rect.centery += 3
+
 
 def main():
     pg.display.set_caption("こうかとんシューティング")
@@ -446,11 +456,11 @@ def main():
     exps = pg.sprite.Group()
     emys = pg.sprite.Group()
     Bird_life = 3
+    drops = pg.sprite.Group()
     tmr = 0
-    
     clock = pg.time.Clock()
-    
     keytype = 0
+
     while True:
         key_lst = pg.key.get_pressed()
         for event in pg.event.get():
@@ -494,6 +504,9 @@ def main():
             exps.add(Explosion(emy, 100))  # 爆発エフェクト
             score.value += 10  # 10点アップ
             bird.change_img(6, screen)  # こうかとん喜びエフェクト
+            if random.randint(0,100)<100:
+                drops.add(Drop(emy))
+
 
         for bomb in pg.sprite.groupcollide(bombs, beams, True, True).keys():
             exps.add(Explosion(bomb, 50))  # 爆発エフェクト
@@ -513,6 +526,9 @@ def main():
 
         if tmr*8 == 9600:
             boss_group.add(Boss())
+
+        for drop in pg.sprite.spritecollide(bird, drops, True):
+            pass
 
         boss_group.update(bird,bombs)
         boss_group.draw(screen)
